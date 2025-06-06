@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 # Constants
 WIDTH, HEIGHT = 600, 600
@@ -89,6 +90,16 @@ def reset_game():
     screen.fill(BG_COLOR)
     draw_lines()
 
+def ai_make_move():
+    empty_cells = [(r, c) for r in range(BOARD_ROWS) for c in range(BOARD_COLS) if board[r][c] == 0]
+    if empty_cells:
+        row, col = random.choice(empty_cells)
+        board[row][col] = -1
+        draw_figures()
+        return True
+    return False
+
+
 # Main loop
 draw_lines()
 while True:
@@ -104,17 +115,27 @@ while True:
             col = mouseX // SQUARE_SIZE
 
             if board[row][col] == 0:
-                board[row][col] = player
-                player *= -1
+                board[row][col] = 1  # Player X
                 draw_figures()
 
                 winner = check_winner()
-                if winner != 0:
-                    print("Player X wins!" if winner == 1 else "Player O wins!")
+                if winner == 1:
+                    print("Player X wins!")
                     game_over = True
                 elif is_full():
                     print("It's a draw!")
                     game_over = True
+                else:
+                    ai_make_move()
+
+                    winner = check_winner()
+                    if winner == -1:
+                        print("Player O (AI) wins!")
+                        game_over = True
+                    elif is_full():
+                        print("It's a draw!")
+                        game_over = True
+
 
         elif event.type == pygame.MOUSEBUTTONDOWN and game_over:
             reset_game()
